@@ -1,27 +1,49 @@
 #include "telnet_lib.h"
 
+static receive_callback g_callback = NULL;
+static void* g_user_data = NULL;
 
-void send_cmd(int sock, int pid) {
-    char str[MAX_MSG_LENGTH] = {0};
-    printf("> ");
-    while (fgets(str, MAX_MSG_LENGTH, stdin) == str) {
-        if (strncmp(str, END_STRING, strlen(END_STRING)) == 0) break;
-        if (send(sock, str, strlen(str) + 1, 0) < 0) {
-            perror("send");
-            exit(EXIT_FAILURE);
-        }
-    }
-    kill(pid, SIGKILL);
-    printf("Goodbye.\n");
+void set_receive_callback(receive_callback callback, void* user_data) {
+    g_callback = callback;
+    g_user_data = user_data;
 }
 
-void receive(int sock) {
-    char buf[MAX_MSG_LENGTH] = {0};
-    int filled = 0;    
-    while ((filled = recv(sock, buf, MAX_MSG_LENGTH - 1, 0)) > 0) {
-        buf[filled] = '\0';
-        printf("%s", buf);
-        fflush(stdout);        
-    }    
-    printf("Server disconnected.\n");
+int send_cmd_programmatic(int sock, const char* cmd) {
+    if (!cmd) return -1;
+    
+    size_t cmd_len = strlen(cmd);
+    if (cmd_len > MAX_MSG_LENGTH - 1) return -1;
+    
+    char formatted_cmd[MAX_MSG_LENGTH];
+    strncpy(formatted_cmd, cmd, MAX_MSG_LENGTH - 2);
+    
+    if (cmd_len > 0 && cmd[cmd_len-1] != '\n') {
+        formatted_cmd[cmd_len] = '\n';
+        formatted_cmd[cmd_len + 1] = '\0';
+        cmd_len++;
+    }
+
+    int sent = send(sock, formatted_cmd, cmd_len + 1, 0);
+    if (sent < 0) {
+        return -1;
+    }
+    
+    return sent;
+}
+
+int receive_programmatic(int sock, char* buffer, int buffer_size) {
+    if (!buffer || buffer_size <= 0) return -1;
+    
+    int filled = recv(sock, buffer, buffer_size - 1, 0);
+    if (filled > 0) {
+        buffer[filled] = '\0';
+        
+        if (g_callback) {
+            g_callback(buffer, filled, g_user_data);
+        }
+        
+        return filled;
+    }
+    
+    return filled;
 }
