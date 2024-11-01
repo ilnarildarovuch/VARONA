@@ -1,5 +1,4 @@
 #include "include/includes.h"
-#include "bruteforce_functions/passwords.c"
 #include "bruteforce_functions/wait_for_prompt.c"
 #include "bruteforce_functions/socket_things.c"
 #include "bruteforce_functions/login_things.c"

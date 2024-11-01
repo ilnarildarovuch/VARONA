@@ -1,5 +1,4 @@
 #include "include/includes.h"
-#include "bruteforce_functions/passwords.c"
 
 int try_login(const char *host, const char *user, const char *password) {
     ssh_session session = ssh_new();
@@ -52,4 +51,5 @@ int ssh_brute() {
         }
 
     }
+    retun 0;
 }
