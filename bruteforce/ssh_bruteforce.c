@@ -39,7 +39,7 @@ int ssh_brute() {
 
     for (int b = 0; usernames[b] != NULL; b++){
         for (int i = 0; passwords[i] != NULL; i++) {
-            if (try_login(HOST, usernames[b], passwords[i]) == 0) {
+            if (try_login(SSH_HOST, usernames[b], passwords[i]) == 0) {
                 shutup_ssh_bruteforce = 20;
                 break; // Если пароль найден, выходим из цикла
             }

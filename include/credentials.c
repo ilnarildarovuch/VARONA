@@ -1,5 +1,7 @@
+#include <stddef.h>
+
 const char *usernames[] = {
-    "root", "admin", "root", "support", "user", "tech", "mother", "superadmin",
+    "admin", "user", "tech", "mother", "superadmin",
     "admin1234", "1111111", "default", "", NULL
 };
 

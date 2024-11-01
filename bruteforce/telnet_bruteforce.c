@@ -57,12 +57,12 @@ char* telnet_login(const char *host) {
 }
 
 int telnet_brute() {
-    char *credentials = telnet_login(HOST);
+    char *credentials = telnet_login(TELNET_HOST);
     
     if (strlen(credentials) > 0) {
         printf("Успешный вход: %s\n", credentials);
     } else {
-        printf("Не удалось войти на %s\n", HOST);
+        printf("Не удалось войти на %s\n", TELNET_HOST);
     }
 
     return 0;
