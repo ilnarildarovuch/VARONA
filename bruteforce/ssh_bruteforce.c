@@ -51,5 +51,5 @@ int ssh_brute() {
         }
 
     }
-    retun 0;
+    return 0;
 }
