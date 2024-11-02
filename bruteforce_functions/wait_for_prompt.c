@@ -7,15 +7,22 @@ int wait_for_prompt(int sock) {
         bytes_received = recv(sock, buffer, sizeof(buffer) - 1, 0);
         if (bytes_received > 0) {
             buffer[bytes_received] = '\0';
-            if (strstr(buffer, ":")) {
-                printf("DEBUG: Найдено приглашение для ввода: %s\n", buffer);
-                return 1; // Найдено ": "
+            printf("DEBUG: Получено: %s\n", buffer);
+            
+            // Расширенная проверка приглашений
+            if (strstr(buffer, ":") || strstr(buffer, "login") || 
+                strstr(buffer, "password") || strstr(buffer, ">") ||
+                strstr(buffer, "@")) {
+                return 1;
             }
         }
-        // Проверка времени ожидания
-        if (difftime(time(NULL), start_time) > 10) {
+        
+        if (difftime(time(NULL), start_time) > 15) { // Увеличено время ожидания
             printf("DEBUG: Время ожидания истекло\n");
-            return 0; // Время ожидания истекло
+            return 0;
         }
+        
+        // Добавляем небольшую задержку между попытками
+        usleep(100000); // 0.1 секунды
     }
 }

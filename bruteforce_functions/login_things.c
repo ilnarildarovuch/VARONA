@@ -21,25 +21,27 @@ void send_password(int sock, const char *password) {
 }
 
 int check_login_success(int sock, char *buffer) {
-    int bytes_received = recv(sock, buffer, sizeof(buffer) - 1, 0);
+    int bytes_received = recv(sock, buffer, TELNET_MAX_BUFFER - 1, 0); // Исправлено использование размера буфера
     if (bytes_received < 0) {
         perror("Ошибка при получении данных");
         return 0;
     }
     buffer[bytes_received] = '\0';
-    printf("DEBUG: Полученный ответ: %s\n", buffer); // Отладочное сообщение
+    printf("DEBUG: Полученный ответ: %s\n", buffer);
 
-    // Проверка на успешный вход
-    if (strstr(buffer, "Login") || strstr(buffer, "Password")) {
-        printf("DEBUG: Сервер все еще ожидает входа.\n");
-        return 0; // Сервер все еще ожидает входа
+    // Проверка на неудачный вход
+    if (strstr(buffer, "Login") || strstr(buffer, "Password") || 
+        strstr(buffer, "failed") || strstr(buffer, "incorrect")) {
+        printf("DEBUG: Неудачная попытка входа\n");
+        return 0;
     }
 
-    if (strstr(buffer, "#") || strstr(buffer, "$") || strstr(buffer, "(config)") ||
-        strstr(buffer, "/ ]") || strstr(buffer, "\\ ]")) {
-        return 1; // Успешный вход
-    } else {
-        printf("DEBUG: Неудачная попытка входа. Ответ сервера не соответствует ожиданиям.\n");
-        return 0; // Неудачный вход
+    // Расширенная проверка на успешный вход
+    if (strstr(buffer, "#") || strstr(buffer, "$") || strstr(buffer, ">") ||
+        strstr(buffer, "(config)") || strstr(buffer, "/ ]") || strstr(buffer, "\\ ]") ||
+        strstr(buffer, "Menu") || strstr(buffer, "Welcome")) {
+        return 1;
     }
+
+    return 0;
 }

@@ -13,51 +13,57 @@ Credentials telnet_login(const char *host) {
 
     for (const char **username = usernames; *username != NULL; username++) {
         for (const char **password = passwords; *password != NULL; password++) {
-            // Открываем новое соединение для каждой попытки
             sock = create_socket(host, &server);
             if (sock < 0) {
                 printf("Не удалось установить соединение\n");
+                sleep(1);
                 continue;
             }
 
             printf("Соединение установлено\n");
 
+            // Ожидание приглашения для логина
             if (!wait_for_prompt(sock)) {
+                printf("DEBUG: Не удалось получить приглашение для ввода логина\n");
                 close_socket(sock, "");
+                sleep(2);
                 continue;
             }
 
-            printf("Пытаемся войти с %s\n", *username);
-            sleep(3);
+            printf("Пытаемся войти с логином %s\n", *username);
             send_username(sock, *username);
+            sleep(1);
 
+            // Ожидание приглашения для пароля
             if (!wait_for_prompt(sock)) {
+                printf("DEBUG: Не удалось получить приглашение для ввода пароля\n");
                 close_socket(sock, "");
+                sleep(2);
                 continue;
             }
 
             printf("Пытаемся войти с паролем %s\n", *password);
-            sleep(0.5);
             send_password(sock, *password);
+            sleep(2);
 
-            printf("Подождали. Проверяем успешность входа\n");
-            sleep(1);
+            printf("Проверяем успешность входа\n");
             if (check_login_success(sock, buffer)) {
                 strncpy(result.username, *username, sizeof(result.username) - 1);
                 strncpy(result.password, *password, sizeof(result.password) - 1);
-                result.username[sizeof(result.username) - 1] = '\0'; // Обеспечиваем нуль-терминацию
-                result.password[sizeof(result.password) - 1] = '\0'; // Обеспечиваем нуль-терминацию
+                result.username[sizeof(result.username) - 1] = '\0';
+                result.password[sizeof(result.password) - 1] = '\0';
                 result.good = 1;
                 close_socket(sock, "");
                 return result;
             }
 
-            // Закрываем соединение после каждой попытки
+            printf("DEBUG: Неудачная попытка входа с %s:%s\n", *username, *password);
             close_socket(sock, "");
+            sleep(2); // Задержка между попытками
         }
     }
 
-    // Если вход не удался, возвращаем пустые строки
+    // Если вход не удался
     result.username[0] = '\0';
     result.password[0] = '\0';
     result.good = 0;
