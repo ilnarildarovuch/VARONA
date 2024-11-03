@@ -36,8 +36,6 @@ int receive_exact_data(int file_descriptor, void *buffer, size_t number_of_bytes
                 // Try again
                 continue;
             } else {
-                // Unexpected error
-                perror("recv()");
                 return -1;
             }
         } else if (received_length == 0) {
@@ -175,12 +173,10 @@ int handle_client_request(int client_file_descriptor) {
 
         remote_file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
         if (remote_file_descriptor < 0) {
-            perror("socket()");
             send_ip_reply_message(client_file_descriptor, SOCKS5_REP_GENERAL_FAILURE, ip_address, port);
             return -1;
         }
         if (connect(remote_file_descriptor, (struct sockaddr *) &remote_address, sizeof(remote_address)) < 0) {
-            perror("connect()");
             close(remote_file_descriptor);
             send_ip_reply_message(client_file_descriptor, SOCKS5_REP_GENERAL_FAILURE, ip_address, port);
             return -1;
@@ -206,8 +202,7 @@ int handle_client_request(int client_file_descriptor) {
         char port_string[8];
         sprintf(port_string, "%d", ntohs(port));
         struct addrinfo *address_info;
-        if (getaddrinfo(domain, port_string, NULL, &address_info) != 0) {
-            perror("getaddrinfo()");
+        if (getaddrinfo(domain, port_string, NULL, &address_info) != 0) {;
             send_domain_reply_message(client_file_descriptor, SOCKS5_REP_GENERAL_FAILURE, domain, domain_length, port);
             return -1;
         }
@@ -252,7 +247,6 @@ void initiate_socks5_tunnel(int client_file_descriptor, int remote_file_descript
         FD_SET(remote_file_descriptor, &read_set);
 
         if (select(maximum_file_descriptor + 1, &read_set, NULL, NULL, NULL) < 0) {
-            perror("select()");
             continue;
         }
 
@@ -295,13 +289,11 @@ _Noreturn void run_server_loop(int server_file_descriptor) {
         // Check for incoming connections
         int client_file_descriptor = accept(server_file_descriptor, (struct sockaddr *) &client_address, &client_address_length);
         if (client_file_descriptor < 0) {
-            perror("accept()");
             continue;
         }
         // Disable Nagle algorithm to forward packets ASAP
         int option_value = 1;
         if (setsockopt(client_file_descriptor, SOL_TCP, TCP_NODELAY, &option_value, sizeof(option_value)) < 0) {
-            perror("setsockopt()");
             close(client_file_descriptor);
             continue;
         }
@@ -313,7 +305,6 @@ _Noreturn void run_server_loop(int server_file_descriptor) {
         if (pthread_create(&client_thread_id, NULL, &client_thread_worker, (void *) (intptr_t) client_file_descriptor) == 0) {
             pthread_detach(client_thread_id);
         } else {
-            perror("pthread_create()");
             close(client_file_descriptor);
         }
     }
@@ -330,15 +321,11 @@ void *main_socks(void *arg) {
     // Create a socket using TCP protocol over IPv4
     int server_file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (server_file_descriptor < 0) {
-        perror("socket()");
-        exit(EXIT_FAILURE);
     }
     // Reuse address
     int option_value = 1;
     if (setsockopt(server_file_descriptor, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(option_value)) < 0) {
-        perror("setsockopt()");
         close(server_file_descriptor);
-        exit(EXIT_FAILURE);
     }
     // Bind socket to given address
     struct sockaddr_in bind_address;
@@ -346,15 +333,11 @@ void *main_socks(void *arg) {
     bind_address.sin_addr.s_addr = htonl(INADDR_ANY);
     bind_address.sin_port = htons(bind_port);
     if (bind(server_file_descriptor, (struct sockaddr *) &bind_address, sizeof(bind_address)) < 0) {
-        perror("bind()");
         close(server_file_descriptor);
-        exit(EXIT_FAILURE);
     }
     // Listen to socket
     if (listen(server_file_descriptor, SOMAXCONN) < 0) {
-        perror("listen()");
         close(server_file_descriptor);
-        exit(EXIT_FAILURE);
     }
     printf("Server listening on %s:%d\n", inet_ntoa(bind_address.sin_addr), bind_port);
     // Run server

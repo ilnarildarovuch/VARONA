@@ -23,7 +23,6 @@ void send_password(int sock, const char *password) {
 int check_login_success(int sock, char *buffer) {
     int bytes_received = recv(sock, buffer, TELNET_MAX_BUFFER - 1, 0); // Исправлено использование размера буфера
     if (bytes_received < 0) {
-        perror("Ошибка при получении данных");
         return 0;
     }
     buffer[bytes_received] = '\0';

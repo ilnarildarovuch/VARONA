@@ -25,7 +25,6 @@ int check_port_open_on_ip(const char *ip_address, int port) {
     // Создаем сокет
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) {
-        perror("Could not create socket");
         return -1;
     }
 
@@ -33,7 +32,6 @@ int check_port_open_on_ip(const char *ip_address, int port) {
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
     if (inet_pton(AF_INET, ip_address, &server.sin_addr) <= 0) {
-        perror("Invalid address/ Address not supported");
         close(sock);
         return -1;
     }
@@ -44,7 +42,6 @@ int check_port_open_on_ip(const char *ip_address, int port) {
     timeout.tv_usec = 0;
 
     if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
-        perror("setsockopt failed");
         close(sock);
         return -1;
     }
@@ -56,7 +53,6 @@ int check_port_open_on_ip(const char *ip_address, int port) {
             // Порт закрыт или недоступен
             return 0; // Порт закрыт
         }
-        perror("Connection failed");
         return 0; // Порт закрыт
     }
 

