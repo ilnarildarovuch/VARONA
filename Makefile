@@ -2,7 +2,7 @@
 CC = gcc
 
 # Флаги компиляции
-CFLAGS = -Wall -Wextra -I./include -I. -fPIC -O3 -s -fvisibility=hidden
+CFLAGS = -Wall -Wextra -I./include -I. -fPIC -pthread -O3 -s -fvisibility=hidden
 
 # Библиотеки
 LIBS = -lssh
@@ -15,13 +15,13 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Исходные файлы
-SRCS = main.c include/credentials.c find_ips/finder.c
+SRCS = main.c include/credentials.c find_ips/finder.c socks5/proxy.c
 
 # Объектные файлы
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 # Создание подкаталогов для объектных файлов
-OBJ_DIRS = $(OBJ_DIR) $(OBJ_DIR)/include
+OBJ_DIRS = $(OBJ_DIR) $(OBJ_DIR)/include $(OBJ_DIR)/socks5
 
 # Имя исполняемого файла
 TARGET = $(BIN_DIR)/bruteforce
