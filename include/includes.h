@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 #include <libssh/libssh.h>
 #include <netinet/tcp.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "credentials.h"
 

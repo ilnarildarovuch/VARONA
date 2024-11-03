@@ -17,7 +17,15 @@ int try_login(const char *host, const char *user, const char *password) {
     ssh_options_set(session, SSH_OPTIONS_USER, user);
 
     printf("Connecting to %s as %s...\n", host, user);
-    if (ssh_connect(session) != SSH_OK) {
+    int connection_result = ssh_connect(session);
+    
+    if (connection_result != SSH_OK) {
+        // Проверяем, является ли ошибка "Network is unreachable"
+        if (strcmp(ssh_get_error(session), "Network is unreachable") == 0) {
+            fprintf(stderr, "Connection failed: Network is unreachable\n");
+            ssh_free(session);
+            return 0; // Возвращаем 0, если сеть недоступна
+        }
         fprintf(stderr, "Error: %s\n", ssh_get_error(session));
         ssh_free(session);
         return -1;
