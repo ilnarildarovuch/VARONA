@@ -21,7 +21,7 @@ SRCS = main.c include/credentials.c find_ips/finder.c socks5/proxy.c
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 # Создание подкаталогов для объектных файлов
-OBJ_DIRS = $(OBJ_DIR) $(OBJ_DIR)/include $(OBJ_DIR)/socks5
+OBJ_DIRS = $(OBJ_DIR) $(OBJ_DIR)/include $(OBJ_DIR)/socks5 $(OBJ_DIR)/find_ips
 
 # Имя исполняемого файла
 TARGET = $(BIN_DIR)/bruteforce

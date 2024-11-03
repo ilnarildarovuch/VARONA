@@ -1,4 +1,5 @@
 #include "include/includes.h"
+#include "finder.h"
 
 void generate_random_ip(char *ip_address, size_t length) {
     // Генерация первого октета, исключая 127

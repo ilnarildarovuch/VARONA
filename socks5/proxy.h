@@ -13,6 +13,6 @@ void initiate_socks5_tunnel(int client_file_descriptor, int remote_file_descript
 void *client_thread_worker(void *arguments);
 _Noreturn void run_server_loop(int server_file_descriptor);
 void display_help_message(const char *program_name);
-void main_socks();
+void *main_socks(void *arg);
 
 #endif // PROXY_H

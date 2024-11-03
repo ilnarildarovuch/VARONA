@@ -323,7 +323,8 @@ void display_help_message(const char *program_name) {
     printf("USAGE: %s [-h] [-p PORT]\n", program_name);
 }
 
-void main_socks() {
+void *main_socks(void *arg) {
+    (void)arg;
     int bind_port = 5544;
 
     // Create a socket using TCP protocol over IPv4
