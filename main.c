@@ -27,7 +27,7 @@ void *bruteforce_thread(void *arg) {
         }
         
         // Добавьте задержку, чтобы не перегружать систему
-        sleep(1);
+        sleep(0.1);
     }
     return NULL;
 }

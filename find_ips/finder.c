@@ -38,13 +38,28 @@ int check_port_open_on_ip(const char *ip_address, int port) {
         return -1;
     }
 
+    // Устанавливаем таймаут для сокета
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
+        perror("setsockopt failed");
+        close(sock);
+        return -1;
+    }
+
     // Пытаемся подключиться к серверу
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
         close(sock);
+        if (errno == EINPROGRESS) {
+            // Порт закрыт или недоступен
+            return 0; // Порт закрыт
+        }
+        perror("Connection failed");
         return 0; // Порт закрыт
     }
 
     close(sock);
-
-    return 1;
+    return 1; // Порт открыт
 }
