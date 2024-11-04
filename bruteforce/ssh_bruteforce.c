@@ -78,5 +78,9 @@ Credentials ssh_brute(char *host) {
         }
     }
 
+    if (credentials.username == usernames[0] && credentials.password == passwords[0]) {
+        credentials.good = 0;
+    }
+
     return credentials; // Возвращаем найденные учетные данные
 }

