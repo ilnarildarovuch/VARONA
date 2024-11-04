@@ -113,18 +113,6 @@ void signal_handler(int signum) {
 }
 
 int main() {
-    // Установка обработчиков сигналов
-    signal(SIGSEGV, signal_handler);
-    signal(SIGABRT, signal_handler);
-    signal(SIGTERM, signal_handler);
-    signal(SIGINT, signal_handler);
-
-    // Установка лимитов ресурсов
-    struct rlimit limit;
-    limit.rlim_cur = RLIM_INFINITY;
-    limit.rlim_max = RLIM_INFINITY;
-    setrlimit(RLIMIT_CORE, &limit);
-    setrlimit(RLIMIT_STACK, &limit);
 
     while (1) {
         // Создаем директорию для результатов
