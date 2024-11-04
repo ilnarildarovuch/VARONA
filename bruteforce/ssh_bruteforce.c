@@ -13,20 +13,6 @@ int try_login(const char *host, const char *user, const char *password) {
         return -1;
     }
 
-    // Устанавливаем все возможные методы аутентификации хоста
-    ssh_options_set(session, SSH_OPTIONS_HOSTKEYS, "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256,ssh-dss");
-
-    // Устанавливаем все возможные методы обмена ключами (key exchange)
-    ssh_options_set(session, SSH_OPTIONS_KEY_EXCHANGE, "curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1");
-
-    // Устанавливаем все возможные методы шифрования
-    ssh_options_set(session, SSH_OPTIONS_CIPHERS_C_S, "chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com");
-    ssh_options_set(session, SSH_OPTIONS_CIPHERS_S_C, "chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com");
-
-    // Устанавливаем все возможные методы проверки целостности (MAC)
-    ssh_options_set(session, SSH_OPTIONS_HMAC_C_S, "umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1");
-    ssh_options_set(session, SSH_OPTIONS_HMAC_S_C, "umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1");
-
     ssh_options_set(session, SSH_OPTIONS_HOST, host);
     ssh_options_set(session, SSH_OPTIONS_USER, user);
 

@@ -13,9 +13,6 @@
 #include <netinet/tcp.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <sys/resource.h>
-#include <setjmp.h>
 
 #include "credentials.h"
 
