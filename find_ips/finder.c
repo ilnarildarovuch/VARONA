@@ -5,8 +5,17 @@ void generate_random_ip(char *ip_address, size_t length) {
     // Генерация первого октета, исключая 127
     int part1, part2, part3, part4;
 
-    do {
+     do {
         part1 = rand() % 256;
+    } while (part1 == 0 ||        // 0.0.0.0/8
+            part1 == 10 ||       // 10.0.0.0/8
+            part1 == 127 ||      // 127.0.0.0/8
+            part1 == 169 ||      // 169.254.0.0/16
+            part1 == 172 ||      // 172.16.0.0/12
+            part1 == 192 ||      // 192.168.0.0/16
+            part1 == 224 ||      // 224.0.0.0/4 (multicast)
+            part1 == 240 ||      // 240.0.0.0/4 (reserved)
+            part1 == 255 );
     } while (part1 == 127);
 
     // Генерация остальных октетов
