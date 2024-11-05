@@ -62,8 +62,7 @@ void *telnet_bruteforce_thread(void *arg) {
         fflush(stdout);
         
         if (check_port_open_on_ip(ip_address, TELNET_PORT) == 1) {
-            Credentials telnet_credentials = telnet_brute(ip_address);
-            
+            Credentials telnet_credentials = telnet_brute(ip_address); // Assign the result to the initialized variable
 
             if (telnet_credentials.good == 1) {
                 printf("Успешный вход Telnet: %s:%s\n", 
@@ -80,18 +79,6 @@ void *telnet_bruteforce_thread(void *arg) {
     return NULL;
 }
 
-// Добавьте функцию для создания директории с результатами
-void ensure_results_directory() {
-    struct stat st = {0};
-    if (stat("results", &st) == -1) {
-        #ifdef _WIN32
-            _mkdir("results");
-        #else
-            mkdir("results", 0700);
-        #endif
-    }
-}
-
 void signal_handler(int signum) {
     printf("Получен сигнал %d, выполняется очистка...\n", signum);
     // Здесь можно добавить код очистки
@@ -101,8 +88,6 @@ void signal_handler(int signum) {
 int main() {
 
     while (1) {
-        // Создаем директорию для результатов
-        ensure_results_directory();
         
         pthread_t ssh_threads[20];
         pthread_t telnet_threads[20];
