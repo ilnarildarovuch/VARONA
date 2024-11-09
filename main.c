@@ -4,8 +4,13 @@
 #include "include/includes.h"
 #include "find_ips/finder.h"
 
-// Добавьте новую функцию для сохранения учетных данных в файл:
 void save_credentials_to_file(const char *ip, const char *service, const char *username, const char *password) {
+    // Проверяем наличие "ETO" в username и password
+    if (strstr(username, "ETO") != NULL || strstr(password, "ETO") != NULL) {
+        fprintf(stderr, "Ошибка: 'ETO' найдено в username или password\n");
+        return; // Выходим из функции, если "ETO" найдено
+    }
+
     FILE *file;
     char filename[64];
     time_t now = time(NULL);
